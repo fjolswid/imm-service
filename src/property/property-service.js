@@ -1,12 +1,10 @@
-const { use } = require('bcrypt/promises');
-
 class PropertyService {
     constructor(prisma) {
         this.prisma = prisma;
     }
 
     findOne(propertyId, userId) {
-        return this.prisma.property.findUnique({
+        return this.prisma.property.findFirst({
             where: {
                 id: parseInt(propertyId),
                 userId,
@@ -17,13 +15,16 @@ class PropertyService {
     find(options) {
         return this.prisma.property.findMany({
             where: options,
+            orderBy: {
+                id: 'desc',
+            },
         });
     }
 
     create(propertyData, userId) {
         return this.prisma.property.create({
             data: {
-                ...propertyData,
+                ...this.prepareData(propertyData),
                 user: {
                     connect: {
                         id: userId,
@@ -33,16 +34,30 @@ class PropertyService {
         });
     }
 
-    update(propertyId, propertyData, userId) {
-        return this.prisma.property({
+    update(propertyId, propertyData) {
+        return this.prisma.property.update({
             where: {
-                id: propertyId,
-                userId,
+                id: parseInt(propertyId),
             },
-            data: {
-                propertyData,
+            data: this.prepareData(propertyData),
+        });
+    }
+
+    delete(propertyId) {
+        return this.prisma.property.delete({
+            where: {
+                id: parseInt(propertyId),
             },
         });
+    }
+
+    prepareData(propertyData) {
+        return {
+            title: propertyData.title,
+            description: propertyData.description,
+            price: propertyData.price,
+            approximateMonthlyRentPrice: propertyData.approximateMonthlyRentPrice,
+        };
     }
 }
 

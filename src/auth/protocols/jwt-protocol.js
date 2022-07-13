@@ -4,7 +4,7 @@ const BEARER = 'Bearer';
 
 class JwtProtocol {
     constructor() {
-        const key = 'secret';
+        const key = 'secret1';
         this.signer = createSigner({
             key,
         });

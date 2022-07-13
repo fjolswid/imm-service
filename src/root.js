@@ -3,17 +3,20 @@ const { UserService } = require('./user/user-service');
 const passwordEncryptor = require('./common/password-encryptor');
 
 
-module.exports = async function (app, options) {
+module.exports = async function (app) {
     /**
      * Infrastructure plugins
      */
     app.register(require('./db'));
     app.register(require('@fastify/auth'))
+    app.register(require('@fastify/cors'), {
+        origin: '*',
+    });
 
     /**
      * Global dependencies
      */
-    app.register(fp(async function (app, options) {
+    app.register(fp(async function (app) {
         app.decorate('passwordEncryptor', passwordEncryptor);
         app.decorate('userService', new UserService(app.prisma, app.passwordEncryptor));
     }));
